@@ -24,7 +24,7 @@ If your router does not support UPnP or it is disabled, you will need to manuall
 
 ### Windows (.exe)
 
-The Windows executable is designed to be as simple as possible—just launch it, choose the folder you want to share, and you're ready to go.
+The Windows executable is designed to be as simple as possible just launch it, choose the folder you want to share, and you're ready to go.
 
 ### Legacy Python Version
 
@@ -36,7 +36,7 @@ It can be run entirely from the terminal without the GUI, making it ideal for he
 
 ## ⚠️ Antivirus False Positives
 
-Some antivirus products—most commonly Microsoft Defender may flag the Windows executable as **`Trojan:Win32/Sabsik.FL.A!ml`** or a similar generic detection.
+Some antivirus products most commonly Microsoft Defender may flag the Windows executable as **`Trojan:Win32/Sabsik.FL.A!ml`** or a similar generic detection.
 
 This is a **false positive** and is **not** evidence that P2Pshare contains malware. These detections are caused by how the application is packaged and how it behaves, rather than malicious code.
 
