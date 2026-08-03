@@ -6,7 +6,7 @@ P2Pshare is a lightweight file-sharing application that lets you quickly share f
 
 * 📁 Share files and folders with ease
 * 🌐 Works on both local networks and the internet
-* 🖥️ Simple Windows executable
+* 🖥️ Simple Windows And (wip) Linux executable
 * ⚡ Legacy Python version available for headless servers and terminal use
 * 🔌 Optional automatic UPnP port forwarding for internet sharing
 
@@ -43,7 +43,7 @@ This is a **false positive** and is **not** evidence that P2Pshare contains malw
 ### Why does this happen?
 
 * **PyInstaller packaging.**
-  The Windows executable is built using **PyInstaller** in `--onefile` mode. This bundles Python, all dependencies, and the application into a single executable that extracts itself to a temporary directory at runtime. This behavior resembles how many legitimate installers—and unfortunately some malware—operate, so heuristic and machine-learning scanners often flag it.
+  The Windows executable is built using **PyInstaller** in `--onefile` mode. This bundles Python, all dependencies, and the application into a single executable that extracts itself to a temporary directory at runtime. This behavior resembles how many legitimate installers and unfortunately some malware operate, so heuristic and machine-learning scanners often flag it.
 
 * **Unsigned executable.**
   P2Pshare is not digitally signed with a code-signing certificate. Without a trusted publisher identity, antivirus reputation systems are more likely to treat the executable as suspicious.
@@ -59,7 +59,7 @@ This is a **false positive** and is **not** evidence that P2Pshare contains malw
 You don't have to take our word for it.
 
 * Scan the executable with VirusTotal before running it.
-* Review the source code—P2Pshare is completely open source.
+* Review the source code P2Pshare is completely open source.
 * If you prefer complete transparency, run the **Legacy Python Version** instead of the prebuilt executable.
 
 ---
