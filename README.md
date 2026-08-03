@@ -36,7 +36,7 @@ It can be run entirely from the terminal without the GUI, making it ideal for he
 
 ## ⚠️ Antivirus False Positives
 
-Some antivirus products—most commonly Microsoft Defender—may flag the Windows executable as **`Trojan:Win32/Sabsik.FL.A!ml`** or a similar generic detection.
+Some antivirus products—most commonly Microsoft Defender may flag the Windows executable as **`Trojan:Win32/Sabsik.FL.A!ml`** or a similar generic detection.
 
 This is a **false positive** and is **not** evidence that P2Pshare contains malware. These detections are caused by how the application is packaged and how it behaves, rather than malicious code.
 
