@@ -6,7 +6,7 @@ P2Pshare is a lightweight file-sharing application that lets you quickly share f
 
 * 📁 Share files and folders with ease
 * 🌐 Works on both local networks and the internet
-* 🖥️ Simple Windows And (wip) Linux executable
+* 🖥️ Simple Windows And Linux executable
 * ⚡ Legacy Python version available for headless servers and terminal use
 * 🔌 Optional automatic UPnP port forwarding for internet sharing
 
