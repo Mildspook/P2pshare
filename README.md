@@ -82,6 +82,12 @@ Redistribution, modification, and reuse are permitted, provided that appropriate
 
 ---
 
+## Licence
+
+**MSOS**
+
+---
+
 ## Credits
 
 ### Primary Developer
@@ -91,3 +97,5 @@ Redistribution, modification, and reuse are permitted, provided that appropriate
 ### Contributor
 
 * **Totally_ligit**
+
+
