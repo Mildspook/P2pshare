@@ -85,7 +85,7 @@ in Netherlands.
 
 ---
 
-*This is MCOS (Mild_spook Compatibility Open Source), a custom,
+*This is MSOS (Mild_spook Open Source), a custom,
 non-standard, source-available license. The source code is publicly
 viewable, but because modification is restricted to compatibility
 fixes only, this license is not OSI-approved and does not meet the
