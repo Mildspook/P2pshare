@@ -16,7 +16,18 @@ P2Pshare is a lightweight file-sharing application that lets you quickly share f
 
 To allow devices outside your local network to connect, **UPnP must be enabled on your router**. P2Pshare can use UPnP to automatically configure port forwarding when supported by your router.
 
-If your router does not support UPnP or it is disabled, you will need to manually forward the required port.
+If your router does not support UPnP or it is disabled, you will need to manually forward the required port (**TCP** only, default port `20027`).
+
+---
+
+## Security Notes
+
+P2Pshare is built for quick, casual sharing, so keep these in mind:
+
+* **No password.** Anyone who can reach your IP and port can browse and download everything in the shared folder.
+* **Plain HTTP.** Traffic is not encrypted, so don't share anything sensitive over untrusted networks.
+* **Hidden files are not shared.** Files and folders starting with a dot (such as `.env` or `.git`) are not listed and cannot be downloaded. Symlinks that point outside the shared folder are blocked too. To change the dotfile behaviour, set `SHOW_HIDDEN = True` near the top of the script.
+* **Share a dedicated folder.** Don't share your home directory or a folder that contains anything private.
 
 ---
 
@@ -24,7 +35,7 @@ If your router does not support UPnP or it is disabled, you will need to manuall
 
 ### Windows (.exe)
 
-The Windows executable is designed to be as simple as possible just launch it, choose the folder you want to share, and you're ready to go.
+The Windows executable is designed to be as simple as possible: just launch it, choose the folder you want to share, and you're ready to go.
 
 ### Legacy Python Version
 
@@ -36,7 +47,7 @@ It can be run entirely from the terminal without the GUI, making it ideal for he
 
 ## ⚠️ Antivirus False Positives
 
-Some antivirus products most commonly Microsoft Defender may flag the Windows executable as **`Trojan:Win32/Sabsik.FL.A!ml`** or a similar generic detection.
+Some antivirus products (most commonly Microsoft Defender) may flag the Windows executable as **`Trojan:Win32/Sabsik.FL.A!ml`** or a similar generic detection.
 
 This is a **false positive** and is **not** evidence that P2Pshare contains malware. These detections are caused by how the application is packaged and how it behaves, rather than malicious code.
 
@@ -49,7 +60,7 @@ This is a **false positive** and is **not** evidence that P2Pshare contains malw
   P2Pshare is not digitally signed with a code-signing certificate. Without a trusted publisher identity, antivirus reputation systems are more likely to treat the executable as suspicious.
 
 * **Low reputation.**
-  Since P2Pshare is an independent open-source project with relatively few downloads, cloud reputation systems have little history to determine that the executable is trustworthy. New builds are especially prone to false positives.
+  Since P2Pshare is an independent source-available project with relatively few downloads, cloud reputation systems have little history to determine that the executable is trustworthy. New builds are especially prone to false positives.
 
 * **Networking behavior.**
   P2Pshare opens a local HTTP server to share files and can optionally use **UPnP** to automatically forward a port on your router. Applications that listen for incoming connections and interact with networking hardware are commonly flagged by heuristic scanners, even when their behavior is legitimate.
@@ -59,14 +70,14 @@ This is a **false positive** and is **not** evidence that P2Pshare contains malw
 You don't have to take our word for it.
 
 * Scan the executable with VirusTotal before running it.
-* Review the source code P2Pshare is completely open source.
+* Review the source code: it is publicly available in this repository.
 * If you prefer complete transparency, run the **Legacy Python Version** instead of the prebuilt executable.
 
 ---
 
 ## Redistribution
 
-Redistribution, modification, and reuse are permitted, provided that appropriate credit is given to the original authors.
+P2Pshare is released under the **MSOS** license (see `MSOS.md`). In short: you may read and build the source, and redistribute unmodified copies with all credits and branding intact. Modification is limited to compatibility fixes, and any such change must be clearly labelled and may not add your name to the main credits. The license text is authoritative.
 
 ---
 

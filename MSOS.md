@@ -1,6 +1,6 @@
 # MSOS License (Mild_spook Open Source)
 
-### For: P2PsShare.
+### For: P2Pshare.
 
 Copyright (c) 2026 to present, Mild_spook. All rights reserved.
 
