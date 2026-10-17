@@ -22,6 +22,32 @@ CONFIG_PATH = os.path.join(SCRIPT_DIR, "p2pshare_config.json")
 
 DEFAULT_PORT = 20027
 
+# set to True if you really want dotfiles/dotfolders (.env, .git, .ssh, ...) to be shared too
+SHOW_HIDDEN = False
+
+_NEVER_SHARE = {os.path.realpath(SCRIPT_PATH), os.path.realpath(CONFIG_PATH)}
+
+
+def path_is_shareable(full_path, share_root):
+    """True only if full_path is inside share_root and is not this program, its config,
+    a hidden (dot) file/folder, or a symlink that leads outside the shared folder."""
+    root = os.path.realpath(share_root)
+    real = os.path.realpath(full_path)
+    try:
+        if os.path.commonpath([real, root]) != root:
+            return False
+    except ValueError:
+        return False
+    if real in _NEVER_SHARE:
+        return False
+    if not SHOW_HIDDEN:
+        for p in (os.path.abspath(full_path), real):
+            rel = os.path.relpath(p, root)
+            if any(part.startswith(".") and part not in (".", "..") for part in rel.split(os.sep)):
+                return False
+    return True
+
+
 CREDITS_TEXT = (
     "P2Pshare\n\n"
     "Primary coder:  Mild_spook\n\n"
@@ -206,13 +232,13 @@ def build_breadcrumbs(url_path):
     return '<nav class="breadcrumbs" aria-label="Breadcrumb">' + sep.join(crumbs) + "</nav>"
 
 
-def build_rows(path):
+def build_rows(path, share_root):
     try:
         names = os.listdir(path)
     except OSError:
         return None, 0, 0
 
-    names = [n for n in names if os.path.join(path, n) != SCRIPT_PATH]
+    names = [n for n in names if path_is_shareable(os.path.join(path, n), share_root)]
     entries = []
     for name in names:
         full = os.path.join(path, name)
@@ -506,9 +532,8 @@ def make_handler_class(share_folder, log_func):
             path = urllib.parse.unquote(self.path)
             ts = datetime.datetime.now().strftime("%H:%M:%S")
 
-            requested_full = os.path.abspath(self.translate_path(self.path))
-            if requested_full == SCRIPT_PATH:
-                log_func(f"[{ts}] {client_ip} tried to grab the script itself, blocked")
+            if not path_is_shareable(self.translate_path(self.path), share_folder):
+                log_func(f"[{ts}] {client_ip} asked for {path}, blocked")
                 self.send_error(404, "File not found")
                 return
 
@@ -520,8 +545,15 @@ def make_handler_class(share_folder, log_func):
 
             super().do_GET()
 
+        def do_HEAD(self):
+            # HEAD goes through the same checks as GET
+            if not path_is_shareable(self.translate_path(self.path), share_folder):
+                self.send_error(404, "File not found")
+                return
+            super().do_HEAD()
+
         def list_directory(self, path):
-            rows_html, total_items, total_files = build_rows(path)
+            rows_html, total_items, total_files = build_rows(path, share_folder)
             if rows_html is None:
                 self.send_error(404, "No permission to list directory")
                 return None
@@ -686,7 +718,6 @@ def open_upnp_port(miniupnpc_mod, port, log_func):
         upnp.discover()
         upnp.selectigd()
         upnp.addportmapping(port, "TCP", upnp.lanaddr, port, "p2pshare", "")
-        upnp.addportmapping(port, "UDP", upnp.lanaddr, port, "p2pshare", "")
         log_func(f"[upnp] port {port} opened, external ip: {upnp.externalipaddress()}")
         return upnp
     except Exception as e:
@@ -699,7 +730,6 @@ def close_upnp_port(upnp, port, log_func):
         return
     try:
         upnp.deleteportmapping(port, "TCP")
-        upnp.deleteportmapping(port, "UDP")
         log_func("[upnp] port closed")
     except Exception as e:
         log_func(f"[upnp] couldn't close port: {e}")

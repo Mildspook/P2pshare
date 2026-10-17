@@ -26,9 +26,34 @@ import socketserver
 
 PORT = 20027
 
+# set to True if you really want dotfiles/dotfolders (.env, .git, .ssh, ...) to be shared too
+SHOW_HIDDEN = False
+
 folder = os.path.dirname(os.path.abspath(__file__))
 THIS_FILE = os.path.basename(os.path.abspath(__file__))
 os.chdir(folder)
+
+SHARE_ROOT = os.path.realpath(folder)
+THIS_PATH = os.path.realpath(os.path.abspath(__file__))
+
+
+def path_is_shareable(full_path):
+    """True only if full_path is inside the shared folder and is not this script,
+    a hidden (dot) file/folder, or a symlink that leads outside the shared folder."""
+    real = os.path.realpath(full_path)
+    try:
+        if os.path.commonpath([real, SHARE_ROOT]) != SHARE_ROOT:
+            return False
+    except ValueError:
+        return False
+    if real == THIS_PATH:
+        return False
+    if not SHOW_HIDDEN:
+        for p in (os.path.abspath(full_path), real):
+            rel = os.path.relpath(p, SHARE_ROOT)
+            if any(part.startswith(".") and part not in (".", "..") for part in rel.split(os.sep)):
+                return False
+    return True
 
 
 # ------------------------------------------------------------------
@@ -143,7 +168,7 @@ def build_rows(path):
     except OSError:
         return None, 0, 0
 
-    names = [n for n in names if n != THIS_FILE]
+    names = [n for n in names if path_is_shareable(os.path.join(path, n))]
     entries = []
     for name in names:
         full = os.path.join(path, name)
@@ -433,10 +458,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         path = urllib.parse.unquote(self.path)
         ts = datetime.datetime.now().strftime("%H:%M:%S")
 
-        # dont let ppl download the script itself
-        fname_check = path.lstrip("/").split("?")[0]
-        if fname_check == THIS_FILE:
-            print(f"[{ts}] {client_ip} tried to grab the script itself, blocked")
+        # dont let ppl grab the script itself, hidden files, or anything outside the folder
+        if not path_is_shareable(self.translate_path(self.path)):
+            print(f"[{ts}] {client_ip} asked for {path}, blocked")
             self.send_error(404, "File not found")
             return
 
@@ -447,6 +471,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             print(f"[{ts}] {client_ip} is downloading -> {fname}")
 
         super().do_GET()
+
+    def do_HEAD(self):
+        # HEAD goes through the same checks as GET
+        if not path_is_shareable(self.translate_path(self.path)):
+            self.send_error(404, "File not found")
+            return
+        super().do_HEAD()
 
     def list_directory(self, path):
         rows_html, total_items, total_files = build_rows(path)
@@ -576,7 +607,6 @@ try:
     upnp.discover()
     upnp.selectigd()
     upnp.addportmapping(PORT, "TCP", upnp.lanaddr, PORT, "p2pshare", "")
-    upnp.addportmapping(PORT, "UDP", upnp.lanaddr, PORT, "p2pshare", "")
     print("[upnp] port", PORT, "opened, external ip:", upnp.externalipaddress())
 except Exception as e:
     print("[upnp] couldnt open port automatically (pip install miniupnpc), continuing anyway:", e)
@@ -589,8 +619,14 @@ print("local network link: http://" + LOCAL_IP + ":" + str(PORT))
 print("ctrl+c to stop")
 print()
 
+class ThreadedServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    # one thread per connection so a big download doesn't block everyone else
+    daemon_threads = True
+    allow_reuse_address = True
+
+
 try:
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+    with ThreadedServer(("", PORT), Handler) as httpd:
         httpd.serve_forever()
 except KeyboardInterrupt:
     print("stopping...")
@@ -598,7 +634,6 @@ finally:
     if upnp:
         try:
             upnp.deleteportmapping(PORT, "TCP")
-            upnp.deleteportmapping(PORT, "UDP")
             print("[upnp] port closed")
         except Exception as e:
             print("[upnp] couldnt close port:", e)
